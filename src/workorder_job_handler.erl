@@ -11,7 +11,8 @@
 
 -record(state, {
   conn,
-  obj
+  obj,
+  id
 }).
 
 init(_Transport, _Req, []) ->
@@ -34,7 +35,7 @@ resource_exists(Req, State = #state{conn = Pid}) ->
     {error, _} ->
       {false, Req2, State};
     {ok, Obj} ->
-      {true, Req2, State#state{obj = Obj}}
+      {true, Req2, State#state{obj = Obj, id = ID}}
   end.
 
 content_types_provided(Req, State) ->
@@ -43,7 +44,16 @@ content_types_provided(Req, State) ->
     {<<"application/vnd.mogsie.work-order+json">>, to_json}
   ], Req, State}.
 
-to_json(Req, State = #state{obj = Obj}) ->
+to_json(Req, State = #state{obj = Obj, id = ID}) ->
   Job = workorder_riak:body(Obj),
-  {jsx:encode(Job), Req, State}.
+
+  Body = [
+    {<<"type">>, fast_key:get(<<"type">>, Job)},
+    {<<"input">>, fast_key:get(<<"input">>, Job)},
+    {<<"complete">>, cowboy_base:resolve([<<"jobs">>, ID, <<"complete">>], Req)},
+    {<<"fail">>, cowboy_base:resolve([<<"jobs">>, ID, <<"fail">>], Req)},
+    {<<"status">>, cowboy_base:resolve([<<"jobs">>, ID, <<"status">>], Req)}
+  ],
+
+  {jsx:encode(Body), Req, State}.
 

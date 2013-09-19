@@ -22,6 +22,6 @@ set_body(Value, Obj) ->
 
 set_binary_index(Index, Value, Obj) ->
   MD = riakc_obj:get_update_metadata(Obj),
-  MD2 = riakc_obj:add_secondary_index(MD, [{{binary_index, Index}, Value}]),
+  MD2 = riakc_obj:add_secondary_index(MD, [{{binary_index, Index}, [Value]}]),
   riakc_obj:update_metadata(Obj, MD2).
 
