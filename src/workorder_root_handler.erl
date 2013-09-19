@@ -20,7 +20,7 @@ rest_init(Req, _Opts) ->
   {ok, Req, #state{}}.
 
 service_available(Req, State) ->
-  case riakou:do(get_index_eq, [?JOBS_BUCKET, {binary_index, "waiting"}, <<1>>]) of
+  case riakou:do(get_index_eq, [?JOBS_BUCKET, {binary_index, "status"}, <<"Waiting">>]) of
     {ok, {keys, Keys}} -> {true, Req, State#state{work_orders = Keys}};
     _Error ->
       io:format("~p~n", [_Error]),

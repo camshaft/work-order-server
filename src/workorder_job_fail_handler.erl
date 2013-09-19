@@ -33,7 +33,7 @@ service_available(Req, State) ->
 
 resource_exists(Req, State = #state{conn = Pid}) ->
   {ID, Req2} = cowboy_req:binding(id, Req, <<>>),
-  case riakc_pb_socket:get(Pid, ?STATUS_BUCKET, ID) of
+  case riakc_pb_socket:get(Pid, ?JOBS_BUCKET, ID) of
     {error, _} ->
       {false, Req2, State};
     {ok, Obj} ->
@@ -41,7 +41,6 @@ resource_exists(Req, State = #state{conn = Pid}) ->
   end.
 
 fail_work_order(Req, State) ->
-	Obj = workorder_riak:body(State#state.obj),
-	UpdatedObj = workorder_riak:set_body("Failed", Obj),
+	UpdatedObj = workorder_riak:set_binary_index("status",<<"Waiting">>, State#state.obj),
 	riakc_pb_socket:put(State#state.conn, UpdatedObj),
 	{ok, Req, State}.

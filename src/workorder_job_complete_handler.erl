@@ -1,0 +1,56 @@
+-module(workorder_job_complete_handler).
+
+-export([init/3]).
+-export([allowed_methods/2]).
+-export([content_types_accepted/2]).
+-export([complete_work_order/2]).
+-export([resource_exists/2]).
+-export([service_available/2]).
+
+-include("workorder.hrl").
+
+-record(state, {
+  conn,
+  obj,
+  id
+}).
+
+init(_Transport, _Req, []) ->
+	{upgrade, protocol, cowboy_rest}.
+
+allowed_methods(Req, State) ->
+    {['POST'], Req, State}.
+
+content_types_accepted(Req, State) ->
+	{[{{<<"application/x-www-form-urlencoded">>, []}, complete_work_order}], Req, State}.	
+
+service_available(Req, State) ->
+  case riakou:take() of
+    {error, _} ->
+      {false, Req, State};
+    Pid ->
+      {true, Req, State#state{conn = Pid}}
+  end.
+
+resource_exists(Req, State = #state{conn = Pid}) ->
+  {ID, Req2} = cowboy_req:binding(id, Req, <<>>),
+  case riakc_pb_socket:get(Pid, ?JOBS_BUCKET, ID) of
+    {error, _} ->
+      {false, Req2, State};
+    {ok, Obj} ->
+      {true, Req2, State#state{obj = Obj, id = ID}}
+  end.
+
+complete_work_order(Req, State) ->
+  {ID, Req2} = cowboy_req:binding(id, Req, <<>>),
+  case riakc_pb_socket:get(State#state.conn, ?STATUS_BUCKET, ID) of
+      {error, _} ->
+        {false, Req2, State};
+      {ok, Status} ->
+        UpdatedStatus = workorder_riak:set_body(body_qs, Status),
+        riakc_pb_socket:put(State#state.conn, UpdatedStatus),
+        UpdatedObj = workorder_riak:set_binary_index("status",<<"Completed">>, State#state.obj),
+        riakc_pb_socket:put(State#state.conn, UpdatedObj),
+        {ok, Req2, State}
+  end.
+	
