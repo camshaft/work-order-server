@@ -26,7 +26,7 @@ allowed_methods(Req, State) ->
     {[<<"POST">>], Req, State}.
 
 content_types_accepted(Req, State) ->
-  {{<<"application">>, <<"x-www-form-urlencoded">>, []}, complete_work_order}], Req, State}.
+  {[{{<<"application">>, <<"x-www-form-urlencoded">>, []}, complete_work_order}], Req, State}.
 
 service_available(Req, State) ->
   case riakou:take() of
