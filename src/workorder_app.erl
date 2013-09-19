@@ -20,7 +20,9 @@ start(_Type, _Args) ->
     {compress, true},
     {env, [
       {dispatch, [
-
+        {'_', [
+          {"/", workorder_root_handler, []}
+        ]}
       ]}
     ]},
     {middlewares, [
@@ -31,7 +33,7 @@ start(_Type, _Args) ->
     ]}
   ]),
   io:format("Server started on port ~p", [Port]),
-  flokk_sup:start_link().
+  workorder_sup:start_link().
 
 stop(_State) ->
   ok.
