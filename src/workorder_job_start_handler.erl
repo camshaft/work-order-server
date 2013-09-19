@@ -26,7 +26,7 @@ allowed_methods(Req, State) ->
     {[<<"POST">>], Req, State}.
 
 content_types_accepted(Req, State) ->
-  {[{{<<"*">>, <<"*">>, []}, start_work_order}], Req, State}.
+  {[{'*', start_work_order}], Req, State}.
 
 service_available(Req, State) ->
   case riakou:take() of
@@ -49,5 +49,5 @@ start_work_order(Req, State) ->
   %set secondary key on jobs object
   UpdatedObj = workorder_riak:set_binary_index("status",<<"InProgress">>, State#state.obj),
   ok = riakc_pb_socket:put(State#state.conn, UpdatedObj),
-  {ok, Req, State}.
-  
+  {true, Req, State}.
+

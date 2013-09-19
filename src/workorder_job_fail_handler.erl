@@ -22,10 +22,10 @@ rest_init(Req, _Opts) ->
   {ok, Req, #state{}}.
 
 allowed_methods(Req, State) ->
-    {[<<"POST">>], Req, State}.
+   {[<<"POST">>], Req, State}.
 
 content_types_accepted(Req, State) ->
-	{[{{<<"*">>, <<"*">>, []}, fail_work_order}], Req, State}.	
+  {[{'*', fail_work_order}], Req, State}.
 
 service_available(Req, State) ->
   case riakou:take() of
@@ -45,6 +45,6 @@ resource_exists(Req, State = #state{conn = Pid}) ->
   end.
 
 fail_work_order(Req, State) ->
-	UpdatedObj = workorder_riak:set_binary_index("status",<<"Waiting">>, State#state.obj),
-	riakc_pb_socket:put(State#state.conn, UpdatedObj),
-	{ok, Req, State}.
+  UpdatedObj = workorder_riak:set_binary_index("status",<<"Waiting">>, State#state.obj),
+  riakc_pb_socket:put(State#state.conn, UpdatedObj),
+  {true, Req, State}.

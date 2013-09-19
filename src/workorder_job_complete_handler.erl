@@ -57,5 +57,5 @@ complete_work_order(Req, State) ->
   end,
   UpdatedObj = workorder_riak:set_binary_index("status",<<"Completed">>, State#state.obj),
   ok = riakc_pb_socket:put(State#state.conn, UpdatedObj),
-  {ok, Req4, State}.
-	
+  {true, Req4, State}.
+

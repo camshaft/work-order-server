@@ -57,8 +57,14 @@ to_json(Req, State = #state{obj = Obj, id = ID}) ->
   presenterl:conditional([
     fast_key:get(<<"single-use">>, Job, true)
   ], [
-    {<<"start">>, cowboy_base:resolve([<<"jobs">>, ID, <<"start">>], Req)},
     {<<"status">>, cowboy_base:resolve([<<"jobs">>, ID, <<"status">>], Req)}
+  ], P),
+
+  presenterl:conditional([
+    fast_key:get(<<"single-use">>, Job, true),
+    workorder_riak:has_binary_index("status", <<"Waiting">>, Obj)
+  ], [
+    {<<"start">>, cowboy_base:resolve([<<"jobs">>, ID, <<"start">>], Req)}
   ], P),
 
   presenterl:conditional([
