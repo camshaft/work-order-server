@@ -1,0 +1,12 @@
+#!/bin/sh
+
+erlang="./otp/bin/erl"
+! [ -f "$erlang" ] && erlang="erl"
+
+# Default to 8 threads
+if [ -z "$THREAD_COUNT" ]
+then
+   THREAD_COUNT="8"
+fi
+
+$erlang -config priv/app.config +K true +A$THREAD_COUNT -smp auto -name workorder@`hostname` -pa ebin -pa deps/*/ebin -env ERL_LIBS deps -noshell -noinput -s workorder

@@ -1,0 +1,15 @@
+{application, workorder, [
+  {id, "workorder"},
+  {description, "Work-order server"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {applications, [
+    kernel,
+    stdlib,
+    crypto,
+    ranch,
+    cowboy
+  ]},
+  {mod, { workorder_app, []}},
+  {env, []}
+]}.
