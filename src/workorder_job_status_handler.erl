@@ -19,25 +19,25 @@
 }).
 
 init(_Transport, _Req, []) ->
-	{upgrade, protocol, cowboy_rest}.
+  {upgrade, protocol, cowboy_rest}.
 
 rest_init(Req, _Opts) ->
   {ok, Req, #state{}}.
 
 allowed_methods(Req, State) ->
-    {[<<"GET">>, <<"PUT">>], Req, State}.
+  {[<<"GET">>, <<"PUT">>], Req, State}.
 
 content_types_accepted(Req, State) ->
-	{[
-		{{<<"application">>, <<"json">>, []}, status_work_order},
-		{{<<"application">>, <<"status+json">>, []}, status_work_order}
-	], Req, State}.
+  {[
+    {{<<"application">>, <<"json">>, []}, status_work_order},
+    {{<<"application">>, <<"status+json">>, []}, status_work_order}
+  ], Req, State}.
 
 content_types_provided(Req, State) ->
-	{[
-		{{<<"application">>, <<"json">>, []}, work_order_status_to_json},
-		{{<<"application">>, <<"status+json">>, []}, work_order_status_to_json}
-	], Req, State}.
+  {[
+    {{<<"application">>, <<"json">>, []}, work_order_status_to_json},
+    {{<<"application">>, <<"status+json">>, []}, work_order_status_to_json}
+  ], Req, State}.
 
 service_available(Req, State) ->
   case riakou:take() of
@@ -50,17 +50,20 @@ service_available(Req, State) ->
 resource_exists(Req, State = #state{conn = Pid}) ->
   {ID, Req2} = cowboy_req:binding(id, Req, <<>>),
   case riakc_pb_socket:get(Pid, ?STATUS_BUCKET, ID) of
+    {error, notfound} ->
+      {false, Req2, State#state{id = ID, obj = riakc_obj:new(?STATUS_BUCKET, ID)}};
     {error, _} ->
-      {false, Req2, State};
+      {halt, Req2, State};
     {ok, Obj} ->
       {true, Req2, State#state{obj = Obj, id = ID}}
   end.
 
 status_work_order(Req, State) ->
-	{ok, Body, Req2} = cowboy_req:body(Req),
-	UpdatedObj = workorder_riak:set_body(Body, State#state.obj),
-	riakc_pb_socket:put(State#state.conn, UpdatedObj),
-	{true, Req2, State}.
+  {ok, Body, Req2} = cowboy_req:body(Req),
+  UpdatedObj = workorder_riak:set_body(jsx:decode(Body), State#state.obj),
+  ok = riakc_pb_socket:put(State#state.conn, UpdatedObj),
+  {true, Req2, State}.
 
 work_order_status_to_json(Req, State) ->
-	{ok, Req, workorder_riak:body(State#state.obj)}.
+  Body = workorder_riak:body(State#state.obj),
+  {jsx:encode(Body), Req, State}.

@@ -47,13 +47,28 @@ content_types_provided(Req, State) ->
 to_json(Req, State = #state{obj = Obj, id = ID}) ->
   Job = workorder_riak:body(Obj),
 
-  Body = [
+  P = presenterl:create(),
+
+  P ! [
     {<<"type">>, fast_key:get(<<"type">>, Job)},
-    {<<"input">>, fast_key:get(<<"input">>, Job)},
-    {<<"complete">>, cowboy_base:resolve([<<"jobs">>, ID, <<"complete">>], Req)},
-    {<<"fail">>, cowboy_base:resolve([<<"jobs">>, ID, <<"fail">>], Req)},
-    {<<"status">>, cowboy_base:resolve([<<"jobs">>, ID, <<"status">>], Req)}
+    {<<"input">>, fast_key:get(<<"input">>, Job)}
   ],
+
+  presenterl:conditional([
+    fast_key:get(<<"single-use">>, Job, true)
+  ], [
+    {<<"start">>, cowboy_base:resolve([<<"jobs">>, ID, <<"start">>], Req)},
+    {<<"status">>, cowboy_base:resolve([<<"jobs">>, ID, <<"status">>], Req)}
+  ], P),
+
+  presenterl:conditional([
+    workorder_riak:has_binary_index("status", <<"InProgress">>, Obj)
+  ], [
+    {<<"complete">>, cowboy_base:resolve([<<"jobs">>, ID, <<"complete">>], Req)},
+    {<<"fail">>, cowboy_base:resolve([<<"jobs">>, ID, <<"fail">>], Req)}
+  ], P),
+
+  Body = presenterl:encode(P),
 
   {jsx:encode(Body), Req, State}.
 
