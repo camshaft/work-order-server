@@ -65,7 +65,7 @@ create_work_order(Req, State) ->
   RiakObject = riakc_obj:new(?JOBS_BUCKET, undefined),
   RiakObject2 = workorder_riak:set_body(WorkOrder, RiakObject),
   RiakObject3 = workorder_riak:set_binary_index("status", <<"Waiting">>, RiakObject2),
-  {ok, SavedRiakObject} = riakou:do(put, [RiakObject2]),
+  {ok, SavedRiakObject} = riakou:do(put, [RiakObject3]),
   Id = riakc_obj:key(SavedRiakObject),
   Url = cowboy_base:resolve([<<"jobs">>, Id], Req2),
   Req3 = cowboy_req:set_resp_header(<<"Location">>, Url, Req2),
