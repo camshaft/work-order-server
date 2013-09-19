@@ -46,14 +46,14 @@ allowed_methods(Req, State) ->
   {[<<"GET">>, <<"POST">>], Req, State}.
 
 work_order_collection_to_json(Req, State=#state{work_orders=WorkOrders}) ->
-  Body = to_json(WorkOrders),
+  Body = to_json(Req, WorkOrders),
   {jsx:encode(Body), Req, State}.
 
-to_json(WorkOrders) ->
+to_json(Req, WorkOrders) ->
   [
     {<<"collection">>, [
       {<<"items">>, [
-        [{<<"href">>, <<"/jobs/", WorkOrder/binary>>}] || WorkOrder <- WorkOrders
+        [{<<"href">>, cowboy_base:resolve([<<"jobs">>, WorkOrder], Req)}] || WorkOrder <- WorkOrders
       ]}
     ]},
     {<<"version">>, <<"1.0">>}
