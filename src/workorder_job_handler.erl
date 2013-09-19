@@ -52,8 +52,8 @@ to_json(Req, State = #state{obj = Obj, id = ID}) ->
   P = presenterl:create(),
 
   P ! [
-    {<<"type">>, fast_key:get(<<"type">>, Job)},
-    {<<"input">>, fast_key:get(<<"input">>, Job)}
+    {<<"type">>, fast_key:get(<<"type">>, Job, <<>>)},
+    {<<"input">>, fast_key:get(<<"input">>, Job, <<>>)}
   ],
 
   presenterl:conditional([
