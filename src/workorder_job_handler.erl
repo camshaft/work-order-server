@@ -43,6 +43,7 @@ content_types_provided(Req, State) ->
     {<<"application/vnd.mogsie.work-order+json">>, to_json}
   ], Req, State}.
 
-to_json(Req, State) ->
-  {<<>>, Req, State}.
+to_json(Req, State = #state{obj = Obj}) ->
+  Job = workorder_riak:body(Obj),
+  {jsx:encode(Job), Req, State}.
 
