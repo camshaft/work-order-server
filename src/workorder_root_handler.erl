@@ -7,6 +7,7 @@
 -export([content_types_accepted/2]).
 -export([allowed_methods/2]).
 -export([work_order_collection_to_json/2]).
+-export([work_order_collection_to_html/2]).
 -export([create_work_order/2]).
 
 -include("workorder.hrl").
@@ -33,7 +34,8 @@ service_available(Req, State) ->
 content_types_provided(Req, State) ->
   {[
     {{<<"application">>, <<"json">>, []}, work_order_collection_to_json},
-    {{<<"application">>, <<"/collection+json">>, []}, work_order_collection_to_json}
+    {{<<"application">>, <<"/collection+json">>, []}, work_order_collection_to_json},
+    {{<<"text">>, <<"html">>, []}, work_order_collection_to_html}
   ], Req, State}.
 
 content_types_accepted(Req, State) ->
@@ -45,7 +47,7 @@ content_types_accepted(Req, State) ->
 allowed_methods(Req, State) ->
   {[<<"GET">>, <<"POST">>], Req, State}.
 
-work_order_collection_to_json(Req, State=#state{work_orders=WorkOrders}) ->
+work_order_collection_to_json(Req, State=#state{work_orders = WorkOrders}) ->
   Body = to_json(Req, WorkOrders),
   {jsx:encode(Body), Req, State}.
 
@@ -57,6 +59,23 @@ to_json(Req, WorkOrders) ->
       ]}
     ]},
     {<<"version">>, <<"1.0">>}
+  ].
+
+work_order_collection_to_html(Req, State=#state{work_orders = WorkOrders}) ->
+  {to_html(Req, WorkOrders), Req, State}.
+
+to_html(Req, WorkOrders) ->
+  [
+    <<"<!DOCTYPE html>\n">>,
+    <<"<html>\n">>,
+    <<"<head><title>Work Orders</title></head>\n">>,
+    <<"<body>\n">>,
+    <<"<h1>Work Orders</h1>">>,
+    <<"<ul class=\"work-orders\">">>,
+    [ [<<"<li><a href=\"">>, cowboy_base:resolve([<<"jobs">>, WorkOrder], Req), <<"\">">>, WorkOrder, <<"</a></li>">>] || WorkOrder <- WorkOrders ],
+    <<"</ul>">>,
+    <<"</body>\n">>,
+    <<"</html>\n">>
   ].
 
 create_work_order(Req, State) ->
