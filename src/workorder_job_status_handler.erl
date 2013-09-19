@@ -25,7 +25,7 @@ rest_init(Req, _Opts) ->
   {ok, Req, #state{}}.
 
 allowed_methods(Req, State) ->
-    {['GET', 'PUT'], Req, State}.
+    {[<<"GET">>, <<"PUT">>], Req, State}.
 
 content_types_accepted(Req, State) ->
 	{[{{<<"application/status+json">>, []}, status_work_order}], Req, State}.

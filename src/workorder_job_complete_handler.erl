@@ -23,7 +23,7 @@ rest_init(Req, _Opts) ->
   {ok, Req, #state{}}.
 
 allowed_methods(Req, State) ->
-    {['POST'], Req, State}.
+    {[<<"POST">>], Req, State}.
 
 content_types_accepted(Req, State) ->
 	{[{{<<"application/x-www-form-urlencoded">>, []}, complete_work_order}], Req, State}.	

@@ -22,7 +22,7 @@ rest_init(Req, _Opts) ->
   {ok, Req, #state{}}.
 
 allowed_methods(Req, State) ->
-    {['PUT'], Req, State}.
+    {[<<"PUT">>], Req, State}.
 
 content_types_accepted(Req, State) ->
 	{[{{<<"*/*">>, []}, fail_work_order}], Req, State}.	
