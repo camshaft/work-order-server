@@ -51,7 +51,7 @@ resource_exists(Req, State = #state{conn = Pid}) ->
   {ID, Req2} = cowboy_req:binding(id, Req, <<>>),
   case riakc_pb_socket:get(Pid, ?STATUS_BUCKET, ID) of
     {error, notfound} ->
-      {false, Req2, State#state{id = ID, obj = riakc_obj:new(?STATUS_BUCKET, ID)}};
+      {true, Req2, State#state{id = ID}};
     {error, _} ->
       {halt, Req2, State};
     {ok, Obj} ->
@@ -64,6 +64,13 @@ status_work_order(Req, State) ->
   ok = riakc_pb_socket:put(State#state.conn, UpdatedObj),
   {true, Req2, State}.
 
+work_order_status_to_json(Req, State = #state{obj = undefined}) ->
+  Body = [
+    {<<"status">>, [
+      {<<"state">>, <<"ok">>}
+    ]}
+  ],
+  {jsx:encode(Body), Req, State};
 work_order_status_to_json(Req, State) ->
   Body = workorder_riak:body(State#state.obj),
   {jsx:encode(Body), Req, State}.

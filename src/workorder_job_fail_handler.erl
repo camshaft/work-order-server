@@ -45,6 +45,6 @@ resource_exists(Req, State = #state{conn = Pid}) ->
   end.
 
 fail_work_order(Req, State) ->
-  UpdatedObj = workorder_riak:set_binary_index("status",<<"Waiting">>, State#state.obj),
+  UpdatedObj = workorder_riak:set_binary_index("status", <<"Waiting">>, State#state.obj),
   riakc_pb_socket:put(State#state.conn, UpdatedObj),
   {true, Req, State}.
