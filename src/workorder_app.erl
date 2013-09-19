@@ -22,7 +22,7 @@ start(_Type, _Args) ->
   Dispatch = cowboy_router:compile([
     {'_', [
       {"/", workorder_root_handler, []},
-      {"/jobs/:id", workorder_jobs_handler, []},
+      {"/jobs/:id", workorder_job_handler, []},
       {"/jobs/:id/start", workorder_job_start_handler, []},
       {"/jobs/:id/status", workorder_job_status_handler, []},
       {"/jobs/:id/complete", workorder_job_complete_handler, []},
