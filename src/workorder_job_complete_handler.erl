@@ -47,7 +47,8 @@ complete_work_order(Req, State) ->
       {error, _} ->
         {false, Req2, State};
       {ok, Status} ->
-        UpdatedStatus = workorder_riak:set_body(body_qs, Status),
+        {ok, QueryString, Req3} = cowboy_req:body_qs(Req2),
+        UpdatedStatus = workorder_riak:set_body(Req3, Status),
         riakc_pb_socket:put(State#state.conn, UpdatedStatus),
         UpdatedObj = workorder_riak:set_binary_index("status",<<"Completed">>, State#state.obj),
         riakc_pb_socket:put(State#state.conn, UpdatedObj),
