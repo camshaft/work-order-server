@@ -43,7 +43,7 @@ content_types_provided(Req, State) ->
   {[
     {{<<"application">>, <<"json">>, []}, to_json},
     {{<<"application">>, <<"vnd.mogsie.work-order+json">>, []}, to_json},
-    {{<<"text">>, <<"html">>, []}, to_html}
+    {{<<"text">>, <<"html">>, '*'}, to_html}
   ], Req, State}.
 
 to_json(Req, State = #state{obj = Obj, id = ID}) ->
@@ -92,7 +92,7 @@ to_html(Req, State = #state{obj = Obj, id = Id}) ->
     <<"<html>\n">>,
     <<"<head><title>Work Orders</title></head>\n">>,
     <<"<body>\n">>,
-    [<<"<h1>Job">>, Id, <<"</h1>\n">>],
+    [<<"<h1>Job ">>, Id, <<"</h1>\n">>],
     [<<"<p>">>, fast_key:get(<<"type">>, Job), <<"</p>\n">>],
     [<<"<p>">>, jsx:encode(fast_key:get(<<"input">>, Job)), <<"</p>\n">>],
     [<<"<table>">>]
