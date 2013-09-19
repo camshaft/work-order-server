@@ -2,6 +2,7 @@
 
 -export([body/1]).
 -export([set_body/2]).
+-export([set_binary_index/3]).
 
 body(Obj) ->
   case riakc_obj:get_content_type(Obj) of
@@ -18,4 +19,9 @@ body(Obj) ->
 
 set_body(Value, Obj) ->  
   riakc_obj:update_value(Obj, term_to_binary(Value, [compressed]), <<"application/x-erlang-term">>).
+
+set_binary_index(Index, Value, Obj) ->
+  MD = riakc_obj:get_update_metadata(Obj),
+  MD2 = riakc_obj:add_secondary_index(MD, [{{binary_index, Index}, Value}]),
+  riakc_obj:update_metadata(Obj, MD2).
 
