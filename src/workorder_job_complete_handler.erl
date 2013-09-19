@@ -6,6 +6,7 @@
 -export([complete_work_order/2]).
 -export([resource_exists/2]).
 -export([service_available/2]).
+-export([rest_init/2]).
 
 -include("workorder.hrl").
 
@@ -17,6 +18,9 @@
 
 init(_Transport, _Req, []) ->
 	{upgrade, protocol, cowboy_rest}.
+
+rest_init(Req, _Opts) ->
+  {ok, Req, #state{}}.
 
 allowed_methods(Req, State) ->
     {['POST'], Req, State}.
