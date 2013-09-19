@@ -16,9 +16,17 @@ start(_Type, _Args) ->
   Listeners = simple_env:get_integer("NUM_LISTENERS", 100),
   Port = simple_env:get_integer("PORT", 5000),
 
+  RiakURL = simple_env:get_binary("RIAK_URL", <<"riak://localhost">>),
+  ok = riakou:start_link(RiakURL),
+
   Dispatch = cowboy_router:compile([
     {'_', [
-      {"/", workorder_root_handler, []}
+      {"/", workorder_root_handler, []},
+      {"/jobs/:id", workorder_jobs_handler, []},
+      {"/jobs/:id/start", workorder_job_start_handler, []},
+      {"/jobs/:id/status", workorder_job_status_handler, []},
+      {"/jobs/:id/complete", workorder_job_complete_handler, []},
+      {"/jobs/:id/fail", workorder_job_fail_handler, []}
     ]}
   ]),
 
