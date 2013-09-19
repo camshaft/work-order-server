@@ -1,1 +1,2 @@
 -define(JOBS_BUCKET, <<"jobs">>).
+-define(STATUS_BUCKET, <<"status">>).
