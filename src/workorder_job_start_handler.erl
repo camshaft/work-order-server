@@ -45,9 +45,16 @@ resource_exists(Req, State = #state{conn = Pid}) ->
       {true, Req2, State#state{obj = Obj, id = ID}}
   end.
 
-start_work_order(Req, State) ->
+start_work_order(Req, State = #state{id = ID}) ->
   %set secondary key on jobs object
-  UpdatedObj = workorder_riak:set_binary_index("status",<<"InProgress">>, State#state.obj),
-  ok = riakc_pb_socket:put(State#state.conn, UpdatedObj),
-  {true, Req, State}.
+  Obj = State#state.obj,
+  case workorder_riak:has_binary_index("status", <<"Waiting">>, Obj) of
+    false ->
+      {false, Req, State};
+    _ ->
+      UpdatedObj = workorder_riak:set_binary_index("status",<<"InProgress">>, State#state.obj),
+      ok = riakc_pb_socket:put(State#state.conn, UpdatedObj),
+      {ok, Req2} = cowboy_req:reply(303, [{<<"location">>, cowboy_base:resolve([<<"jobs">>, ID], Req)}], Req),
+      {true, Req2, State}
+  end.
 
