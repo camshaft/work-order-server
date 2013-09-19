@@ -16,14 +16,16 @@ start(_Type, _Args) ->
   Listeners = simple_env:get_integer("NUM_LISTENERS", 100),
   Port = simple_env:get_integer("PORT", 5000),
 
+  Dispatch = cowboy_router:compile([
+    {'_', [
+      {"/", workorder_root_handler, []}
+    ]}
+  ]),
+
   {ok, _} = cowboy:start_http(http, Listeners, [{port, Port}], [
     {compress, true},
     {env, [
-      {dispatch, [
-        {'_', [
-          {"/", workorder_root_handler, []}
-        ]}
-      ]}
+      {dispatch, Dispatch}
     ]},
     {middlewares, [
       cowboy_empty_favicon,
@@ -32,6 +34,7 @@ start(_Type, _Args) ->
       cowboy_handler
     ]}
   ]),
+
   io:format("Server started on port ~p", [Port]),
   workorder_sup:start_link().
 
