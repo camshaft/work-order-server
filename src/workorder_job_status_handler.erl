@@ -28,10 +28,16 @@ allowed_methods(Req, State) ->
     {[<<"GET">>, <<"PUT">>], Req, State}.
 
 content_types_accepted(Req, State) ->
-	{[{{<<"application/status+json">>, []}, status_work_order}], Req, State}.
+	{[
+		{{<<"application">>, <<"json">>, []}, status_work_order},
+		{{<<"application">>, <<"status+json">>, []}, status_work_order}
+	], Req, State}.
 
 content_types_provided(Req, State) ->
-	{[{<<"application/json">>, work_order_status_to_json}], Req, State}.
+	{[
+		{{<<"application">>, <<"json">>, []}, work_order_status_to_json},
+		{{<<"application">>, <<"status+json">>, []}, work_order_status_to_json}
+	], Req, State}.
 
 service_available(Req, State) ->
   case riakou:take() of

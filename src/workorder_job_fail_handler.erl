@@ -25,7 +25,7 @@ allowed_methods(Req, State) ->
     {[<<"PUT">>], Req, State}.
 
 content_types_accepted(Req, State) ->
-	{[{{<<"*/*">>, []}, fail_work_order}], Req, State}.	
+	{[{{<<"*">>, []}, fail_work_order}], Req, State}.	
 
 service_available(Req, State) ->
   case riakou:take() of
