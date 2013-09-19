@@ -32,8 +32,8 @@ service_available(Req, State) ->
 
 content_types_provided(Req, State) ->
   {[
-    {<<"application/json">>, work_order_collection_to_json},
-    {<<"application/collection+json">>, work_order_collection_to_json}
+    {{<<"application">>, <<"json">>, []}, work_order_collection_to_json},
+    {{<<"application">>, <<"/collection+json">>, []}, work_order_collection_to_json}
   ], Req, State}.
 
 content_types_accepted(Req, State) ->

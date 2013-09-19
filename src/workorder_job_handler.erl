@@ -40,8 +40,8 @@ resource_exists(Req, State = #state{conn = Pid}) ->
 
 content_types_provided(Req, State) ->
   {[
-    {<<"application/json">>, to_json},
-    {<<"application/vnd.mogsie.work-order+json">>, to_json}
+    {{<<"application">>, <<"json">>, []}, to_json},
+    {{<<"application">>, <<"vnd.mogsie.work-order+json">>, []}, to_json}
   ], Req, State}.
 
 to_json(Req, State = #state{obj = Obj, id = ID}) ->
