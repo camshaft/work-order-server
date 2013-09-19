@@ -43,15 +43,15 @@ resource_exists(Req, State = #state{conn = Pid}) ->
 
 complete_work_order(Req, State) ->
   {ID, Req2} = cowboy_req:binding(id, Req, <<>>),
-  case riakc_pb_socket:get(State#state.conn, ?STATUS_BUCKET, ID) of
+  {ok, Req4} = case riakc_pb_socket:get(State#state.conn, ?STATUS_BUCKET, ID) of
       {error, _} ->
-        {false, Req2, State};
+        {ok, Req2};
       {ok, Status} ->
         {ok, QueryString, Req3} = cowboy_req:body_qs(Req2),
-        UpdatedStatus = workorder_riak:set_body(Req3, Status),
-        riakc_pb_socket:put(State#state.conn, UpdatedStatus),
-        UpdatedObj = workorder_riak:set_binary_index("status",<<"Completed">>, State#state.obj),
-        riakc_pb_socket:put(State#state.conn, UpdatedObj),
-        {ok, Req2, State}
-  end.
+        UpdatedStatus = workorder_riak:set_body(QueryString, Status),
+        {riakc_pb_socket:put(State#state.conn, UpdatedStatus), Req3}
+  end,
+  UpdatedObj = workorder_riak:set_binary_index("status",<<"Completed">>, State#state.obj),
+  ok = riakc_pb_socket:put(State#state.conn, UpdatedObj),
+  {ok, Req4, State}.
 	
