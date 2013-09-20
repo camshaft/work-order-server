@@ -91,13 +91,13 @@ to_html(Req, State = #state{obj = Obj, id = Id}) ->
     <<"<head><title>Work Orders</title></head>\n">>,
     <<"<body>\n">>,
     [<<"<h1>Job ">>, Id, <<"</h1>\n">>],
-    [<<"<p>">>, fast_key:get(<<"type">>, Job), <<"</p>\n">>],
-    [<<"<p>">>, jsx:encode(fast_key:get(<<"input">>, Job)), <<"</p>\n">>],
+    [<<"<p>">>, fast_key:get(<<"type">>, Job, <<"no type">>), <<"</p>\n">>],
+    [<<"<p>">>, jsx:encode(fast_key:get(<<"input">>, Job, [])), <<"</p>\n">>],
     [<<"<table>">>]
   ],
 
   presenterl:conditional([
-    not fast_key:get(<<"permanent">>, Job, false)
+    fast_key:get(<<"permanent">>, Job, false)
   ], [
     <<"<tr><td>Status</td><td>Permanent</td></tr>">>
   ], P),
